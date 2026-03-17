@@ -19,8 +19,23 @@ async function connectMongo() {
   console.log("MongoDB connected");
 }
 
+app.get("/", (req, res) => {
+  res.send("Backend běží správně");
+});
+
 app.get("/health", (req, res) => {
   res.json({ ok: true, dbConnected: !!db });
+});
+
+app.get("/tasks", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database is not connected yet." });
+
+    const tasks = await db.collection("tasks").find().toArray();
+    res.json(tasks.map(x => ({ ...x, _id: x._id.toString() })));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get("/api/checklists", async (req, res) => {
@@ -117,8 +132,9 @@ app.delete("/api/checklists/:id", async (req, res) => {
 async function start() {
   try {
     await connectMongo();
-    app.listen(3000, () => {
-      console.log("Server is running on http://localhost:3000");
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   } catch (err) {
     console.error("MongoDB connection failed:", err.message);
