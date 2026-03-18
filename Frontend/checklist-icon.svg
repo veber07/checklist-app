@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Checklist icon">
+  <defs>
+    <linearGradient id="clipGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22b7f0"/>
+      <stop offset="100%" stop-color="#0d6ce2"/>
+    </linearGradient>
+    <linearGradient id="frameGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4b5563"/>
+      <stop offset="100%" stop-color="#1f2937"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="110" y="92" width="292" height="360" rx="34" fill="#ffffff" stroke="url(#frameGrad)" stroke-width="22"/>
+
+  <rect x="168" y="66" width="176" height="54" rx="13" fill="url(#clipGrad)"/>
+  <circle cx="256" cy="62" r="21" fill="#eaf3ff" stroke="#1ea5e8" stroke-width="8"/>
+
+  <rect x="160" y="146" width="42" height="42" rx="9" fill="#eef6ff" stroke="#a6c8ef" stroke-width="4"/>
+  <path d="M170 166l11 12 24-25" fill="none" stroke="#0c8ee9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="220" y1="162" x2="332" y2="162" stroke="#9ca3af" stroke-width="8" stroke-linecap="round"/>
+  <line x1="220" y1="178" x2="318" y2="178" stroke="#b3bac4" stroke-width="8" stroke-linecap="round"/>
+
+  <rect x="160" y="222" width="42" height="42" rx="9" fill="#eef6ff" stroke="#a6c8ef" stroke-width="4"/>
+  <path d="M170 242l11 12 24-25" fill="none" stroke="#0c8ee9" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="220" y1="238" x2="332" y2="238" stroke="#9ca3af" stroke-width="8" stroke-linecap="round"/>
+  <line x1="220" y1="254" x2="302" y2="254" stroke="#b3bac4" stroke-width="8" stroke-linecap="round"/>
+
+  <rect x="160" y="298" width="42" height="42" rx="9" fill="#ffffff" stroke="#b1b5bd" stroke-width="5"/>
+  <line x1="220" y1="314" x2="332" y2="314" stroke="#9ca3af" stroke-width="8" stroke-linecap="round"/>
+  <line x1="220" y1="330" x2="302" y2="330" stroke="#b3bac4" stroke-width="8" stroke-linecap="round"/>
+
+  <path d="M222 306c18 0 35 10 49 28l125-118c10-10 24-11 33-2 8 8 6 19-1 28L281 415c-10 11-24 11-35 0l-57-67c-8-9-7-22 3-32 8-7 18-10 30-10z"
+        fill="url(#clipGrad)"/>
+  <path d="M210 312c14 0 28 8 39 23l119-112c10-10 24-11 33-2l-120 129c-10 11-24 11-35 0z"
+        fill="#0a5dc7" opacity=".5"/>
+</svg>
