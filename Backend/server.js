@@ -150,5 +150,31 @@ app.post("/api/register", async (req, res) => {
   res.json({ message: "User created" });
 });
 
+app.post("/api/login", async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: "Database is not connected yet." });
+
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
+
+    const user = await db.collection("users").findOne({ email });
+
+    if (!user || user.password !== password) {
+      return res.status(401).json({ error: "Špatný email nebo heslo" });
+    }
+
+    res.json({
+      ok: true,
+      user: {
+        id: user._id.toString(),
+        email: user.email
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 start();
