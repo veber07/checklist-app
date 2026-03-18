@@ -42,7 +42,6 @@ app.get("/tasks", async (req, res) => {
 
 /**
  * REGISTRACE UŽIVATELE
- * Jednoduchá verze bez hashování hesla.
  */
 app.post("/api/register", async (req, res) => {
   try {
@@ -84,7 +83,6 @@ app.post("/api/register", async (req, res) => {
 
 /**
  * LOGIN
- * Jednoduchá verze bez JWT.
  */
 app.post("/api/login", async (req, res) => {
   try {
@@ -115,7 +113,6 @@ app.post("/api/login", async (req, res) => {
 
 /**
  * GET všechny checklisty pro konkrétního usera
- * Volání:
  * /api/checklists?userId=...
  */
 app.get("/api/checklists", async (req, res) => {
@@ -147,7 +144,6 @@ app.get("/api/checklists", async (req, res) => {
 
 /**
  * GET detail checklistu, ale jen pokud patří userovi
- * Volání:
  * /api/checklists/:id?userId=...
  */
 app.get("/api/checklists/:id", async (req, res) => {
