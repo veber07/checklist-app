@@ -170,6 +170,13 @@
       overflow: hidden;
     }
 
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--radius-md);
+    }
+
     .tbl thead {
       background: linear-gradient(180deg, #eff6ff 0%, #e6f2ff 100%);
     }
@@ -824,6 +831,7 @@
       .page {
         width: calc(100vw - 12px);
         margin: 6px auto;
+        min-height: calc(100vh - 12px);
         border-radius: 12px;
         padding: 12px 10px;
       }
@@ -835,20 +843,118 @@
       }
 
       button {
-        width: 100%;
+        min-height: 40px;
+      }
+
+      .icon-btn {
+        min-height: 26px;
+      }
+
+      .toolbar > button,
+      .actions > button,
+      .auth-actions > button {
+        flex: 1 1 calc(50% - 8px);
+        width: auto;
       }
 
       #menuSearchInput {
+        flex: 1 1 100%;
         max-width: none !important;
+        min-width: 0;
+      }
+
+      #currentUserLabel {
+        margin-left: 0;
+        flex: 1 1 100%;
+      }
+
+      .toolbar .muted,
+      .actions .muted {
+        flex: 1 1 100%;
+      }
+
+      .top {
+        padding: 10px;
+        gap: 8px 10px;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      input[type="date"],
+      textarea,
+      .cell-input {
+        font-size: 16px;
+      }
+
+      .checklist-card {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .checklist-card > div:last-child {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        white-space: normal !important;
+      }
+
+      .checklist-card > div:last-child button {
+        flex: 1 1 calc(50% - 8px);
+        width: auto;
+      }
+
+      .table-scroll {
+        margin: 0 -2px;
       }
 
       .tbl {
-        font-size: 12px;
+        min-width: 900px;
+        font-size: 11.5px;
       }
 
       .tbl th,
       .tbl td {
         padding: 6px 4px;
+      }
+
+      .modal {
+        padding: 8px;
+      }
+
+      #guideModalInner,
+      #templateModalInner,
+      #importModalInner,
+      #extraInfoModalInner {
+        width: 100%;
+        max-width: 100%;
+        padding: 14px;
+      }
+
+      #guideModalInner {
+        height: min(86vh, 760px);
+      }
+
+      #templateModalInner,
+      #importModalInner {
+        max-height: 86vh;
+      }
+
+      #extraInfoModalInner {
+        height: min(86vh, 900px);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .toolbar > button,
+      .actions > button,
+      .auth-actions > button,
+      .checklist-card > div:last-child button {
+        flex: 1 1 100%;
+      }
+
+      .page {
+        padding: 10px 8px;
       }
     }
 
@@ -883,6 +989,7 @@
       #page > h1,
       #page > .top,
       #page > .toolbar,
+      #page > .table-scroll,
       #page > .tbl,
       #progressWrap,
       #page > .actions,
@@ -1032,22 +1139,24 @@
       <span class="muted">Import zvládne soubor nebo vložený text z Excelu.</span>
     </div>
 
-    <table class="tbl">
-      <thead>
-        <tr>
-          <th class="col-co">Co:</th>
-          <th class="col-kdo">Kdo?</th>
-          <th class="col-check"></th>
-          <th class="col-datum">Datum</th>
-          <th class="col-provedl">Provedl</th>
-          <th class="col-actions">Akce</th>
-          <th class="col-info">Informace</th>
-          <th class="col-guide">Návod</th>
-          <th class="col-move">Posun</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th class="col-co">Co:</th>
+            <th class="col-kdo">Kdo?</th>
+            <th class="col-check"></th>
+            <th class="col-datum">Datum</th>
+            <th class="col-provedl">Provedl</th>
+            <th class="col-actions">Akce</th>
+            <th class="col-info">Informace</th>
+            <th class="col-guide">Návod</th>
+            <th class="col-move">Posun</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
 
     <div id="progressWrap" style="margin-top: 15px;">
       <div id="progressText" style="font-size: 14px; margin-bottom: 4px;">0 % hotovo</div>
