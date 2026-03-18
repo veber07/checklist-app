@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "5mb" }));
 
-const uri = process.env.MONGO_URI || "mongodb://mara:Test123456@ac-m2gf45g-shard-00-00.udypp9m.mongodb.net:27017,ac-m2gf45g-shard-00-01.udypp9m.mongodb.net:27017,ac-m2gf45g-shard-00-02.udypp9m.mongodb.net:27017/?ssl=true&replicaSet=atlas-3z6e2h-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Chechlist";
+const uri = process.env.MONGO_URI || "mongodb+srv://mara:Test12345678@chechlist.udypp9m.mongodb.net/?retryWrites=true&w=majority&appName=Chechlist"
 let db = null;
 
 async function connectMongo() {
