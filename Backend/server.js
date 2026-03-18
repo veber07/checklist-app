@@ -137,5 +137,18 @@ async function start() {
     console.error("MongoDB connection failed:", err.message);
   }
 }
+app.post("/api/register", async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = {
+    email,
+    password,
+  };
+
+  await db.collection("users").insertOne(user);
+
+  res.json({ message: "User created" });
+});
+
 
 start();
