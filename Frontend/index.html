@@ -1102,14 +1102,30 @@
       return res.json();
     }
 
+    let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+
+    function setCurrentUser(user) {
+      currentUser = user;
+      localStorage.setItem("currentUser", JSON.stringify(user));
+    }
+
+    function clearCurrentUser() {
+      currentUser = null;
+      localStorage.removeItem("currentUser");
+    }
+
     // ===== STORAGE =====
     async function loadRegistry() {
-      return await apiGet("/checklists");
+      if (!currentUser) return [];
+      return await apiGet(`/checklists?userId=${currentUser.id}`);
     }
 
     async function createChecklist(name) {
+      if (!currentUser) throw new Error("Uživatel není přihlášen");
+
       const result = await apiPost("/checklists", {
         name: name || "Nový checklist",
+        userId: currentUser.id,
         state: {}
       });
       activeChecklistId = String(result.insertedId);
@@ -1117,19 +1133,24 @@
     }
 
     async function loadStateById(id) {
-      const item = await apiGet("/checklists/" + id);
+      if (!currentUser) return {};
+      const item = await apiGet(`/checklists/${id}?userId=${currentUser.id}`);
       return item.state || {};
     }
 
     async function saveStateById(id, s, checklistName = "Checklist") {
+      if (!currentUser) throw new Error("Uživatel není přihlášen");
+
       await apiPut("/checklists/" + id, {
         name: checklistName,
+        userId: currentUser.id,
         state: s
       });
     }
 
     async function deleteChecklistById(id) {
-      await apiDelete("/checklists/" + id);
+      if (!currentUser) throw new Error("Uživatel není přihlášen");
+      await apiDelete(`/checklists/${id}?userId=${currentUser.id}`);
     }
 
     async function getChecklistNameById(id) {
@@ -2225,9 +2246,10 @@
         renameBtn.onclick = async () => {
           const newName = prompt("Nový název checklistu:", item.name);
           if (!newName) return;
-          const loaded = await apiGet("/checklists/" + itemId);
+          const loaded = await apiGet(`/checklists/${itemId}?userId=${currentUser.id}`);
           await apiPut("/checklists/" + itemId, {
             name: newName,
+            userId: currentUser.id,
             state: loaded.state || {}
           });
           await showMenu();
@@ -2236,11 +2258,12 @@
         const doneBtn = document.createElement("button");
         doneBtn.textContent = completed ? "Vrátit do práce" : "Označit hotové";
         doneBtn.onclick = async () => {
-          const loaded = await apiGet("/checklists/" + itemId);
+          const loaded = await apiGet(`/checklists/${itemId}?userId=${currentUser.id}`);
           const nextState = { ...(loaded.state || {}) };
           nextState.completedAt = completed ? null : new Date().toISOString();
           await apiPut("/checklists/" + itemId, {
             name: item.name || "Checklist",
+            userId: currentUser.id,
             state: nextState
           });
           await showMenu();
@@ -3235,7 +3258,9 @@
 
     // ===== APP START =====
     (async () => {
-      await showMenu();
+      if (currentUser) {
+        await showMenu();
+      }
     })().catch(console.error);
   </script>
 </body>
