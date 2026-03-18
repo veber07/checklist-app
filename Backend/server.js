@@ -1,6 +1,7 @@
 ﻿const express = require("express");
 const cors = require("cors");
 const { MongoClient, ObjectId } = require("mongodb");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 app.use(cors());
@@ -11,6 +12,7 @@ const uri =
   "mongodb+srv://mara:Test12345678@chechlist.udypp9m.mongodb.net/?retryWrites=true&w=majority&appName=Chechlist";
 
 let db = null;
+const PASSWORD_SALT_ROUNDS = 12;
 
 async function connectMongo() {
   const client = new MongoClient(uri);
@@ -62,9 +64,11 @@ app.post("/api/register", async (req, res) => {
       return res.status(409).json({ error: "Uživatel už existuje" });
     }
 
+    const passwordHash = await bcrypt.hash(password, PASSWORD_SALT_ROUNDS);
+
     const result = await db.collection("users").insertOne({
       email,
-      password,
+      password: passwordHash,
       createdAt: new Date().toISOString()
     });
 
@@ -94,8 +98,27 @@ app.post("/api/login", async (req, res) => {
     const password = String(req.body.password || "").trim();
 
     const user = await db.collection("users").findOne({ email });
+    const storedPassword = String(user?.password || "");
+    const isBcryptHash = /^\$2[aby]\$\d{2}\$/.test(storedPassword);
+    let isPasswordValid = false;
 
-    if (!user || user.password !== password) {
+    if (user) {
+      if (isBcryptHash) {
+        isPasswordValid = await bcrypt.compare(password, storedPassword);
+      } else {
+        // Backward compatibility for old plaintext passwords.
+        isPasswordValid = storedPassword === password;
+        if (isPasswordValid) {
+          const newHash = await bcrypt.hash(password, PASSWORD_SALT_ROUNDS);
+          await db.collection("users").updateOne(
+            { _id: user._id },
+            { $set: { password: newHash } }
+          );
+        }
+      }
+    }
+
+    if (!user || !isPasswordValid) {
       return res.status(401).json({ error: "Špatný email nebo heslo" });
     }
 
