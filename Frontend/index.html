@@ -109,6 +109,7 @@
     }
 
     input[type="text"],
+    input[type="password"],
     input[type="date"],
     textarea,
     .cell-input,
@@ -126,6 +127,7 @@
     }
 
     input[type="text"]:focus,
+    input[type="password"]:focus,
     input[type="date"]:focus,
     textarea:focus,
     .cell-input:focus,
@@ -319,6 +321,66 @@
     .actions button:disabled {
       opacity: .45;
       cursor: not-allowed;
+    }
+
+    .auth-wrap {
+      width: min(520px, 100%);
+      margin: 0 auto;
+      border: 1px solid #d8e5f8;
+      border-radius: 14px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow: var(--shadow-md);
+    }
+
+    .auth-title {
+      margin: 0 0 6px;
+      font-family: var(--font-head);
+      font-size: 20px;
+    }
+
+    .auth-row {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .auth-row label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1f2a44;
+    }
+
+    .auth-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    #authStatus {
+      margin-top: 10px;
+      min-height: 18px;
+      font-size: 12px;
+      color: #334155;
+    }
+
+    #authStatus.error {
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
+    #authStatus.ok {
+      color: #0f7a42;
+      font-weight: 700;
+    }
+
+    #currentUserLabel {
+      margin-left: auto;
+      font-size: 12px;
+      color: #1f3856;
+      font-weight: 700;
+      white-space: nowrap;
     }
 
     .task-progress-badge {
@@ -852,6 +914,27 @@
 
 <body>
 
+  <!-- AUTH PAGE -->
+  <div class="page" id="authPage" style="display:none;">
+    <h1>WORK CHECKLIST</h1>
+    <div class="auth-wrap">
+      <h2 class="auth-title">Přihlášení</h2>
+      <div class="auth-row">
+        <label for="authEmail">E-mail</label>
+        <input type="text" id="authEmail" placeholder="napr. martin@test.cz" autocomplete="email">
+      </div>
+      <div class="auth-row">
+        <label for="authPassword">Heslo</label>
+        <input type="password" id="authPassword" placeholder="Tvoje heslo" autocomplete="current-password">
+      </div>
+      <div class="auth-actions">
+        <button id="loginBtn">Přihlásit se</button>
+        <button id="registerBtn">Registrovat</button>
+      </div>
+      <div id="authStatus"></div>
+    </div>
+  </div>
+
   <!-- START MENU -->
   <div class="page" id="startMenu" style="display:none;">
     <h1>WORK CHECKLIST</h1>
@@ -860,6 +943,8 @@
       <button id="newChecklistBtn">➕ Nový checklist</button>
       <button id="menuFilterModeBtn">Filtr: Rozpracované</button>
       <input type="text" id="menuSearchInput" placeholder="Hledat checklist..." style="max-width:260px;">
+      <button id="logoutBtn">Odhlásit</button>
+      <span id="currentUserLabel"></span>
     </div>
 
     <div style="margin-top:10px;">
@@ -1102,7 +1187,13 @@
       return res.json();
     }
 
-    let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    let currentUser = null;
+    try {
+      currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    } catch {
+      currentUser = null;
+      localStorage.removeItem("currentUser");
+    }
 
     function setCurrentUser(user) {
       currentUser = user;
@@ -1112,6 +1203,87 @@
     function clearCurrentUser() {
       currentUser = null;
       localStorage.removeItem("currentUser");
+    }
+
+    function updateCurrentUserLabel() {
+      const label = document.getElementById("currentUserLabel");
+      if (!label) return;
+      label.textContent = currentUser?.email ? `Přihlášen: ${currentUser.email}` : "";
+    }
+
+    function setAuthStatus(text = "", kind = "") {
+      const statusEl = document.getElementById("authStatus");
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.className = kind;
+    }
+
+    function parseApiError(err) {
+      const raw = String(err?.message || err || "Neznámá chyba");
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed?.error || parsed?.message || raw;
+      } catch {
+        return raw;
+      }
+    }
+
+    function showAuth(statusText = "", statusKind = "") {
+      document.getElementById("authPage").style.display = "block";
+      document.getElementById("startMenu").style.display = "none";
+      document.getElementById("page").style.display = "none";
+      updateCurrentUserLabel();
+      setAuthStatus(statusText, statusKind);
+    }
+
+    async function handleLogin() {
+      const email = String(document.getElementById("authEmail").value || "").trim();
+      const password = String(document.getElementById("authPassword").value || "").trim();
+
+      if (!email || !password) {
+        setAuthStatus("Vyplň e-mail i heslo.", "error");
+        return;
+      }
+
+      try {
+        const data = await apiPost("/login", { email, password });
+        if (!data?.ok || !data?.user) {
+          setAuthStatus("Přihlášení se nepovedlo.", "error");
+          return;
+        }
+
+        setCurrentUser(data.user);
+        updateCurrentUserLabel();
+        setAuthStatus("", "");
+        await showMenu();
+      } catch (err) {
+        setAuthStatus(parseApiError(err), "error");
+      }
+    }
+
+    async function handleRegister() {
+      const email = String(document.getElementById("authEmail").value || "").trim();
+      const password = String(document.getElementById("authPassword").value || "").trim();
+
+      if (!email || !password) {
+        setAuthStatus("Vyplň e-mail i heslo.", "error");
+        return;
+      }
+
+      try {
+        const data = await apiPost("/register", { email, password });
+        if (!data?.ok || !data?.user) {
+          setAuthStatus("Registrace se nepovedla.", "error");
+          return;
+        }
+
+        setCurrentUser(data.user);
+        updateCurrentUserLabel();
+        setAuthStatus("", "");
+        await showMenu();
+      } catch (err) {
+        setAuthStatus(parseApiError(err), "error");
+      }
     }
 
     // ===== STORAGE =====
@@ -2178,8 +2350,15 @@
     }
 
     async function showMenu() {
+      if (!currentUser) {
+        showAuth("Nejdřív se prosím přihlas.", "error");
+        return;
+      }
+
+      document.getElementById("authPage").style.display = "none";
       document.getElementById("startMenu").style.display = "block";
       document.getElementById("page").style.display = "none";
+      updateCurrentUserLabel();
       bindMenuFilterControls();
 
       const listEl = document.getElementById("checklistList");
@@ -2299,6 +2478,7 @@
       const infoPanel = document.getElementById("infoPanel");
       if (infoPanel) infoPanel.style.display = "none";
 
+      document.getElementById("authPage").style.display = "none";
       document.getElementById("startMenu").style.display = "none";
       document.getElementById("page").style.display = "block";
 
@@ -2309,6 +2489,21 @@
       const name = prompt("Název nového checklistu:", "Nový checklist");
       const id = await createChecklist(name || "Nový checklist");
       await openChecklist(id);
+    };
+
+    document.getElementById("loginBtn").onclick = () => handleLogin();
+    document.getElementById("registerBtn").onclick = () => handleRegister();
+
+    document.getElementById("authPassword").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        handleLogin();
+      }
+    });
+
+    document.getElementById("logoutBtn").onclick = () => {
+      clearCurrentUser();
+      activeChecklistId = "";
+      showAuth("Byl jsi odhlášen.", "ok");
     };
 
     document.getElementById("backToMenu").onclick = () => showMenu().catch(console.error);
@@ -3260,6 +3455,8 @@
     (async () => {
       if (currentUser) {
         await showMenu();
+      } else {
+        showAuth();
       }
     })().catch(console.error);
   </script>
