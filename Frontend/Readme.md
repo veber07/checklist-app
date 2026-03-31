@@ -30,7 +30,8 @@ Cílem bylo vytvořit stabilní webovou  z aplikace, která  slouží k správě
 - Jednoduchost a přehlednost  
 - Nízké náklady na provoz    
 - Online dostupnost  
-
+- Možnost exportu dat do Excelu
+- tisk checklistu (převod do pdf)
 ### Propagace  
 - GitHub  
 - Sociální sítě  
